@@ -132,7 +132,7 @@ export class CSVRenderer extends Component<CSVProps,CSVState>{
 			return <th onClick={()=>{
 				this.state.sheet.keyColumnIndex = -1
 				this.forceUpdate()
-			}}>[K]{name}</th>
+			}}><span class="key">Key</span>{name}</th>
 		} else {
 			return <th onClick={()=>{
 				this.state.sheet.keyColumnIndex = index
@@ -148,7 +148,7 @@ export class CSVRenderer extends Component<CSVProps,CSVState>{
 			const key = keys[i]
 			headers.push(this.renderHeader(key, i))
 		}
-		return <tr>{headers}</tr>
+		return <tr class="sticky">{headers}</tr>
 	}
 	render () {
 		return <table class="csv-table">
@@ -196,7 +196,6 @@ export class App extends Component<Props,State> {
 	}
 	renderSheet (sheetIndex: number) {
 		if (this.sheets === undefined || this.sheets.length < 1) {
-			console.log(this.sheets, "!")
 			return <div>No CSVs loaded yet</div>
 		}
 		const idx = sheetIndex// % this.state.csvs.length

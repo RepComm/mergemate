@@ -62,18 +62,22 @@ body {
 }
 .csv-table {
 	border-collapse: collapse;
+	font-size: small;
+	font-family: 'Courier New', Courier, monospace;
+}
+.sticky {
+	position: sticky;
+	top: 0;
 }
 .csv-table > tr > th {
 	text-wrap: nowrap;
-	position: sticky;
 	top: 0;
-	background-color: white;
-	border-style: solid;
-	border-width: 1px;
-	border-color: black;
+	background-color: #cecece;
+	padding-left: 0.5em;
+	padding-right: 0.5em;
 }
 .csv-table > tr {
-	border: 1px solid black;
+	border: 1px solid #b5b5b5;
 	max-height: 2em;
 	height: 2em;
 	line-height: 1em;
@@ -81,5 +85,11 @@ body {
 .csv-table > tr > td {
 	border-left-style: solid;
 	border-width: 1px;
-	border-color: black;
+	border-color: #b5b5b5;
+}
+.key {
+	background-color: #e7ac53;
+	border-radius: 1em;
+	padding-left: 0.5em;
+	padding-right: 0.5em;
 }
