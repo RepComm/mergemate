@@ -40,6 +40,35 @@ body {
 	overflow-y: hidden;
 	overflow-x: auto;
 }
+.toolbar {
+	background-color: #858585;
+	overflow-x: auto;
+	text-align: left;
+}
+.icon {
+	width: 2em;
+	height: 2em;
+	background-image: url(./assets/icon.svg);
+	background-size: contain;
+	background-repeat: no-repeat;
+	float:left;
+}
+.toolbar > button {
+	float:left;
+	height: 100%;
+	border-radius: 0;
+	border: none;
+	background-color: #cacaca;
+	color: black;
+	cursor: pointer;
+	font-family: 'Courier New', Courier, monospace;
+}
+.toolbar > button:nth-child(even) {
+	background-color: #bbbbbb;
+}
+.toolbar > button:hover {
+	background-color: #e7cc9a;
+}
 #tab-buttons > button {
 	background-color: #e7e7e7;
 	color: black;
@@ -77,10 +106,13 @@ body {
 	padding-right: 0.5em;
 }
 .csv-table > tr {
-	border: 1px solid #b5b5b5;
+	/* border: 1px solid #b5b5b5; */
 	max-height: 2em;
 	height: 2em;
 	line-height: 1em;
+}
+.csv-table > tr:nth-child(even) {
+	background-color: #dddddd;
 }
 .csv-table > tr > td {
 	border-left-style: solid;
