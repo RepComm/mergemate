@@ -8,6 +8,7 @@ interface Props {
 }
 interface State {
 	sheetIndex: number;
+	showMergePanel: boolean;
 }
 interface CSVRow {
 	[key: string]: string;
@@ -158,6 +159,143 @@ export class CSVRenderer extends Component<CSVProps, CSVState> {
 	}
 }
 
+function sheetToIDB(sheet: SheetState) {
+	return new Promise<IDBDatabase>(async (_resolve, _reject) => {
+		if (sheet.keyColumnIndex < 0) {
+			_reject("keyColumnIndex not set")
+			return
+		}
+		const name = sheet.name.replace(/ /g, "_")
+
+		const storeName = sheetToStoreName(sheet)
+		
+		const req = indexedDB.open(name)
+		
+		if (sheet.csvRows === undefined || sheet.csvRows.length < 1) {
+			_reject("sheet.csvRows undefined or length < 1")
+		}
+		const first = sheet.csvRows[0]
+		
+		const keys = Object.keys(first)
+
+		const keyPath = keys[sheet.keyColumnIndex]
+
+		req.onupgradeneeded = (evt) => {
+			//@ts-ignore
+			const db: IDBDatabase = evt.target.result;
+			console.log(storeName)
+			const store = db.createObjectStore(storeName, {
+				keyPath
+			})
+
+			store.createIndex(keyPath, keyPath, {
+				unique: true,
+			})
+
+			for (const row of sheet.csvRows) {
+				store.add(row)
+			}
+		}
+		req.onsuccess = (evt) => {
+			//@ts-ignore
+			_resolve(evt.target.result)
+		}
+		req.onerror = (evt) => {
+			_reject(evt)
+		}
+	})
+}
+
+function sheetToStoreName(sheet: SheetState): string {
+	return sheet.name.replace(/ /g, "_").concat("-store")
+}
+
+function dbSheetToStore (sheet: SheetState, db: IDBDatabase) {
+	const storeName = sheetToStoreName(sheet)
+	// console.log(storeName, db.objectStoreNames)
+	const store = db.transaction(storeName).objectStore(storeName)
+	return store
+}
+function dbSheetStoreGet<T = any>(sheet: SheetState, db: IDBDatabase, key: string) {
+	return new Promise<T>((_resolve, _reject)=>{
+		const store = dbSheetToStore(sheet, db)
+		const req = store.get(key)
+		req.onerror = (evt)=>{
+			_reject(evt)
+		}
+		req.onsuccess = (evt)=>{
+			//@ts-ignore
+			_resolve(evt.target.result)
+		}
+	})
+}
+
+async function sheetsToIDBs (...sheets: Array<SheetState>) {
+	const results = new Map<SheetState,IDBDatabase>();
+	for (const sheet of sheets) {
+		results.set(sheet, await sheetToIDB(sheet))
+	}
+	return results
+}
+
+async function storeForEach (store: IDBObjectStore, cb: (row: any)=>Promise<void>) {
+	store.openCursor().onsuccess = async (evt)=>{
+		//@ts-ignore
+		const cursor = evt.target.result as IDBCursorWithValue
+
+		if (cursor && cursor.value) {
+			cb(cursor.value)
+			cursor.continue()
+		}
+	}
+	return
+}
+
+async function mergeSheets(...sheets: Array<SheetState>) {
+	if (sheets.length < 2) {
+		throw `not enough sheets, must have at least 2 to merge, got ${sheets.length}`
+	}
+	const dbs = await sheetsToIDBs(...sheets)
+
+	const aSheet = sheets[0]
+	const aDb = dbs.get(aSheet)
+	const aStore = dbSheetToStore(aSheet, aDb)
+	const aFirst = aSheet.csvRows[0]
+	const aHeaders = Object.keys(aFirst)
+	const key = aHeaders[aSheet.keyColumnIndex]
+
+	storeForEach(aStore, async (row: CSVRow)=>{
+		const rowKeyedValue = row[key]
+
+		const matches = [row]
+		for (const [sheet, db] of dbs) {
+			if (sheet === aSheet) continue
+
+			const otherRow = await dbSheetStoreGet(sheet, db, rowKeyedValue)
+			matches.push(otherRow)
+		}
+		console.log(matches)
+	})
+}
+
+// const s: SheetState = {
+// 	csvRows: [{a: "1", b: "2", c: "3"}],
+// 	keyColumnIndex: 0,
+// 	name: "test"
+// }
+// indexedDB.deleteDatabase(s.name)
+// sheetToIDB(s).then((db)=>{
+// 	dbSheetStoreGet(s, db, "1").then((row)=>{
+// 		console.log(row)
+// 	})
+// })
+
+indexedDB.databases().then((infos)=>{
+	for (const info of infos) {
+		indexedDB.deleteDatabase(info.name)
+	}
+})
+
 export class App extends Component<Props, State> {
 	sheets: Array<SheetState>
 
@@ -165,6 +303,7 @@ export class App extends Component<Props, State> {
 		super();
 		this.state = {
 			sheetIndex: 0,
+			showMergePanel: false,
 		}
 		this.sheets = []
 	}
@@ -204,6 +343,18 @@ export class App extends Component<Props, State> {
 			<CSVRenderer sheet={sheet} key={idx}></CSVRenderer>
 		</div>
 	}
+	renderMergePanel() {
+		let c = "merge-panel"
+		if (!this.state.showMergePanel) c += " hide";
+		return <div class={c}>
+			<div class="row">
+				<button class="close" onClick={() => {
+					this.setState({ showMergePanel: false })
+				}}>Close</button>
+			</div>
+
+		</div>
+	}
 	render() {
 		const fileInputRef = createRef<HTMLInputElement>();
 		return <div id="container">
@@ -238,16 +389,24 @@ export class App extends Component<Props, State> {
 						}
 					}}></input>
 				<button
-					onClick={()=>{
+					onClick={() => {
 						fileInputRef.current.click()
-				}}>Import CSV</button>
+					}}>Import CSV</button>
 				<button
-					onClick={()=>{
-
-				}}>Merge</button>
+					onClick={() => {
+						this.setState({
+							showMergePanel: !this.state.showMergePanel
+						})
+						if (this.sheets.length > 1)  {
+							mergeSheets(...this.sheets).then(()=>{
+					
+							})
+						}
+					}}>Merge</button>
 			</div>
 			{this.renderTabButtons()}
 			{this.renderSheet(this.state.sheetIndex)}
+			{this.renderMergePanel()}
 		</div>
 	}
 }
