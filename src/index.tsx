@@ -272,7 +272,7 @@ async function mergeSheets(...sheets: Array<SheetState>) {
 			if (sheet === aSheet) continue
 
 			const otherRow = await dbSheetStoreGet(sheet, db, rowKeyedValue)
-			matches.push(otherRow)
+			if (otherRow) matches.push(otherRow)
 		}
 		console.log(matches)
 	})

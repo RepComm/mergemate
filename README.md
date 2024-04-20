@@ -13,12 +13,17 @@ merge CSV files easily using this web app written in ts/preact
 - CSV rendering
  - sticky header row
  - key marking per sheet
+- merge button
+ - merge panel shown
+ - exit button functional
+ - csvs to indexeddb[] for fast querying
+ - basic merging functionality done, no output on screen yet
+ - mark column as key per sheet
 
 ## mvp-todo
-- impl merge button
-- merge any number of sheets greater than 1
-- mark column as unique, key, exclude
-- key formulas ( compare: `a.trim().toLower()==b.trim().toLower()` , output: `a.trim().toLower()`)
+- mark column as unique, exclude
+- key formula (ex: `a.trim().toLower()==b.trim().toLower()` ) 
+- cell transform formula (ex: `v.trim().toLower()`)
 - merge modes:
   - union (include only rows where keys match comparison across sheets)
   - exclusion (include only keys with no match comparison across sheets)
