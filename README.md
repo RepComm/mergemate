@@ -1,8 +1,11 @@
+<div align="center">
+
 # mergemate
-<h2 align="center">
-merge CSV files easily using this web app written in ts/preact
+### easily merge CSVs
+#### written in typescript using preact
+
 <img height="256" width="256" src="./src/assets/icon.svg">
-</h2>
+</div>
 
 ![img](./example.png)
 
