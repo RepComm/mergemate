@@ -1,8 +1,10 @@
 # mergemate
-easy CSV merging
 <h2 align="center">
+merge CSV files easily using this web app written in ts/preact
 <img height="256" width="256" src="./src/assets/icon.svg">
 </h2>
+
+![img](./example.png)
 
 ## implemented
 - CSV parsing
