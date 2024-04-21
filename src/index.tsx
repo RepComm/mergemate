@@ -17,16 +17,16 @@ interface State {
 }
 
 function fileReadAsString(file: File) {
-	return new Promise<{content: string; name: string;}>(async (_resolve, _reject)=>{
+	return new Promise<{ content: string; name: string; }>(async (_resolve, _reject) => {
 		const fr = new FileReader()
-		fr.onload = ()=>{
+		fr.onload = () => {
 			_resolve({
 				content: fr.result as string,
 				name: file.name,
 			})
 			return
 		}
-		fr.onerror = (err)=> {
+		fr.onerror = (err) => {
 			_reject(err)
 			return
 		}
@@ -34,8 +34,8 @@ function fileReadAsString(file: File) {
 	})
 }
 
-function filesInputToStrings (inp: HTMLInputElement) {
-	return new Promise<Array<{content: string; name: string;}>>(async (_resolve, _reject)=>{
+function filesInputToStrings(inp: HTMLInputElement) {
+	return new Promise<Array<{ content: string; name: string; }>>(async (_resolve, _reject) => {
 		if (inp.files.length < 1) {
 			_reject("no files")
 			return
@@ -53,10 +53,9 @@ function filesInputToStrings (inp: HTMLInputElement) {
 	})
 }
 
-indexedDB.deleteDatabase("mergemate")
+// indexedDB.deleteDatabase("mergemate")
 
 export class App extends Component<Props, State> {
-	// sheets: Array<SheetState>
 
 	constructor() {
 		super();
@@ -67,13 +66,6 @@ export class App extends Component<Props, State> {
 	}
 	componentWillMount(): void {
 		this.ensureDB()
-	}
-	clear() {
-		this.setState({
-			db: undefined,
-			storeName: undefined
-		})
-		indexedDB.deleteDatabase("mergemate")
 	}
 	renderRow(row: CSVRow) {
 		const values = Object.values(row)
@@ -117,9 +109,9 @@ export class App extends Component<Props, State> {
 		</div>
 	}
 	/**creates a store from the sheet*/
-	async dbSheetInsert (sheet: SheetState) {
+	async dbSheetInsert(sheet: SheetState) {
 		const db = this.state.db
-		
+
 		const storeName = sheet.name
 		await db.createStore(storeName)
 		const store = db.getStore(storeName)
@@ -135,7 +127,7 @@ export class App extends Component<Props, State> {
 	/**Update the index of the sheet's store
 	 * if sheet.keyColumnIndex === -1 it deletes the index
 	*/
-	async dbSheetIndex (sheet: SheetState) {
+	async dbSheetIndex(sheet: SheetState) {
 		const db = this.state.db
 		if (sheet.keyColumnIndex === -1) {
 			await db.storeDeleteIndex(sheet.name)
@@ -146,10 +138,10 @@ export class App extends Component<Props, State> {
 			await db.storeCreateIndex(sheet.name, keyPath)
 		}
 	}
-	async ensureStoreName () {
+	async ensureStoreName() {
 		const db = this.state.db
 		if (!db) return
-		
+
 		const storeNames = db.db.objectStoreNames
 		let storeName = undefined
 		if (storeNames.length > 0) storeName = storeNames[0]
@@ -159,7 +151,7 @@ export class App extends Component<Props, State> {
 		})
 		this.forceUpdate()
 	}
-	async ensureDB () {
+	async ensureDB() {
 		if (!this.state.db) {
 			const db = await DB.open("mergemate")
 
@@ -174,7 +166,7 @@ export class App extends Component<Props, State> {
 		return <div
 			class="importer"
 			style="height:100%;float:left;"
-			>
+		>
 			<input
 				ref={fileInputRef}
 				style="display:none;"
@@ -222,12 +214,27 @@ export class App extends Component<Props, State> {
 							showMergePanel: !this.state.showMergePanel
 						})
 					}}>Merge</button>
+				<button
+					class="tool"
+					onClick={async () => {
+						await this.state.db.clear()
+						this.setState({
+							storeName: undefined,
+						})
+					}}>Clear</button>
 			</div>
 			{this.renderTabButtons()}
-			{this.renderMergePanel()}
 			<Query
 				key={this.state.storeName}
-				db={this.state.db} storeName={this.state.storeName}></Query>
+				db={this.state.db}
+				storeName={this.state.storeName}>
+			</Query>
+			{/* <Query
+				key={this.state.storeName}
+				db={this.state.db}
+				storeName={this.state.storeName}>
+			</Query> */}
+			{this.renderMergePanel()}
 		</div>
 	}
 }

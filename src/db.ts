@@ -59,6 +59,18 @@ export class DB {
       db.createObjectStore(name)
     })
   }
+  deleteStore (name: string) {
+    return this.bullshit((db)=>{
+      db.deleteObjectStore(name)
+    })
+  }
+  clear () {
+    return this.bullshit((db)=>{
+      for (const storeName of db.objectStoreNames) {
+        db.deleteObjectStore(storeName)
+      }
+    })
+  }
   /**Set an index, don't worry about version control / db upgrading*/
   storeCreateIndex (name: string, keyPath: string, indexName: string = "index") {
     return this.bullshit(

@@ -13,18 +13,14 @@
 - CSV parsing
  - comma and newline delimiter
  - quote escaping of comma for cell values
-- CSV rendering
- - sticky header row
- - key marking per sheet
-- merge button
- - merge panel shown
- - exit button functional
- - csvs to indexeddb[] for fast querying
- - basic merging functionality done, no output on screen yet
- - mark column as key per sheet
+ - converts to indexeddb store
+   - fast querying
+   - pagination
+   - renders quickly
+   - persistence across browser sessions
 
 ## mvp-todo
-- mark column as unique, exclude
+- mark column as key, unique, exclude
 - key formula (ex: `a.trim().toLower()==b.trim().toLower()` ) 
 - cell transform formula (ex: `v.trim().toLower()`)
 - merge modes:
