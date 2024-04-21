@@ -33,6 +33,7 @@ body {
 	height: 100%;
 	display: flex;
 	flex-direction: column;
+	max-height: 100vh;
 }
 #tab-buttons {
 	text-align: left;
@@ -86,10 +87,30 @@ body {
 	background-color: #b9b9b9;
 }
 .query-container {
-	height: 95%;
+	min-height: 0;
+	flex: 1;
 	display: flex;
 	flex-direction: column;
 }
+.query-options {
+	background-color: #bef7ef;
+	height:2em;
+}
+.page-option-input {
+	background-color: #84bfc5;
+	color: black;
+	text-indent: 0.5em;
+	font-family: 'Courier New', Courier, monospace;
+	/* max-width: 6em; */
+	border-style: solid;
+	border-width: 1px;
+	border-color: rgb(0, 0, 0);
+	border-radius: 0.5em;
+	margin-left: 0.5em;
+	margin-right: 0.5em;
+	text-align: center;
+}
+
 .csv-container {
 	flex: 1;
 	overflow: scroll;

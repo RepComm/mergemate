@@ -103,10 +103,10 @@ export class Query extends Component<Props, State> {
       maxPage = Math.floor(this.state.storeMax / this.state.count)
     }
     return <div class="query-container">
-      <div class="row">
-        <label>Page</label>
+      <div class="row query-options">
+        <label style="margin-left:2em;">Page</label>
         <input
-          class="query-input-page"
+          class="page-option-input"
           type="number"
           step="1"
           min="0"
@@ -120,10 +120,21 @@ export class Query extends Component<Props, State> {
             )
             this.updateDataView(pageIndex, this.state.count)
           }}
+          onWheel={(evt)=>{
+            evt.preventDefault()
+            const t = evt.target as HTMLInputElement;
+            const pageIndex = Math.min(
+              Math.max(
+              0,
+              t.valueAsNumber - Math.sign(evt.deltaY)
+            ), maxPage)
+            this.updateDataView(pageIndex, this.state.count)
+          }}
         ></input>
-        <span style="margin-right:3em;">{`/ ${maxPage}`}</span>
+        <span style="margin-right:3em;">{`/ ${maxPage||0}`}</span>
         <label>Count</label>
         <input
+          class="page-option-input"
           type="number"
           step="1"
           min="1"
@@ -140,8 +151,18 @@ export class Query extends Component<Props, State> {
             )
             this.updateDataView(this.state.pageIndex, count)
           }}
+          onWheel={(evt)=>{
+            evt.preventDefault()
+            const t = evt.target as HTMLInputElement;
+            const count = Math.min(
+              Math.max(
+              1,
+              t.valueAsNumber - Math.sign(evt.deltaY)
+            ), this.state.storeMax)
+            this.updateDataView(this.state.pageIndex, count)
+          }}
         ></input>
-        <span style="margin-right:3em;">{`/ ${this.state.storeMax}`}</span>
+        <span style="margin-right:3em;">{`/ ${this.state.storeMax||0}`}</span>
       </div>
       <div class="csv-container">
         <table class="query-output">

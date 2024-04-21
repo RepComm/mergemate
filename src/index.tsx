@@ -207,7 +207,7 @@ export class App extends Component<Props, State> {
 				class="tool"
 				onClick={() => {
 					fileInputRef.current.click()
-				}}>Import CSV</button>
+				}}>Import CSVs</button>
 		</div>
 	}
 	render() {
