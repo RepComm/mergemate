@@ -4,7 +4,7 @@
 	font-weight: 400;
 
 	color: #222;
-	background-color: #ffffff;
+	background-color: #a3a3a3;
 
 	font-synthesis: none;
 	text-rendering: optimizeLegibility;
@@ -53,7 +53,7 @@ body {
 	background-repeat: no-repeat;
 	float:left;
 }
-.toolbar > button {
+.tool {
 	float:left;
 	height: 100%;
 	border-radius: 0;
@@ -66,7 +66,7 @@ body {
 	border-radius: 5px;
 	margin-left: 6px;
 }
-.toolbar > button:hover {
+.tool:hover {
 	background: linear-gradient(138deg, #d581d6 0%, #41ddc8 100%);
 }
 #tab-buttons > button {
@@ -83,13 +83,16 @@ body {
 #tab-buttons > button:hover {
 	background-color: #b9b9b9;
 }
+.query-container {
+	height: 95%;
+	display: flex;
+	flex-direction: column;
+}
 .csv-container {
-	/* width: 98dvw;
-	height: 100%; */
 	flex: 1;
 	overflow: scroll;
 }
-.csv-table {
+table {
 	border-collapse: collapse;
 	font-size: small;
 	font-family: 'Courier New', Courier, monospace;
@@ -98,28 +101,28 @@ body {
 	position: sticky;
 	top: 0;
 }
-.csv-table > tr > th {
+table > tr > th {
 	text-wrap: nowrap;
 	top: 0;
 	background-color: #cecece;
 	padding-left: 0.5em;
 	padding-right: 0.5em;
 }
-.csv-table > tr {
+table > tr {
 	/* border: 1px solid #b5b5b5; */
 	max-height: 2em;
 	height: 2em;
 	line-height: 1em;
 	cursor: default;
 }
-.csv-table > tr:hover {
+table > tr:hover {
 	background-color: #dfd3bd !important;
 }
-.csv-table > tr:nth-child(even) {
+table > tr:nth-child(even) {
 	background-color: #ededed;
 }
 
-.csv-table > tr > td {
+table > tr > td {
 	border-left-style: solid;
 	border-width: 1px;
 	border-color: #b5b5b5;
