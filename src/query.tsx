@@ -29,15 +29,6 @@ export class Query extends Component<Props, State> {
       this.updateDataView(this.state.pageIndex, this.state.count)
     }
   }
-  cachedStore: IDBObjectStore;
-
-  getStore(id: string) {
-    if (this.cachedStore === undefined || this.cachedStore.name !== id) {
-      const t = this.state.db.db.transaction(id)
-      this.cachedStore = t.objectStore(id)
-    }
-    return this.cachedStore;
-  }
 
   renderHeadersRow() {
     if (this.state.page === undefined) {
@@ -87,7 +78,13 @@ export class Query extends Component<Props, State> {
   async updateDataView(pageIndex: number, count: number) {
     if (!this.state.storeName) return
     const db = this.state.db
-    const page = await db.page(this.state.storeName, pageIndex, count)
+    let page = []
+    try {
+      page = await db.page(this.state.storeName, pageIndex, count)
+    } catch (ex) {
+      console.warn("no store by name", this.state.storeName)
+      return
+    }
     const storeMax = await db.count(this.state.storeName)
 
     this.setState({

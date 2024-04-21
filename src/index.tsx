@@ -53,7 +53,7 @@ function filesInputToStrings(inp: HTMLInputElement) {
 	})
 }
 
-// indexedDB.deleteDatabase("mergemate")
+const MMOUTPUT = "__mergemate::output__"
 
 export class App extends Component<Props, State> {
 
@@ -92,6 +92,7 @@ export class App extends Component<Props, State> {
 		if (storeNames.length < 0) return buttons
 
 		for (const storeName of storeNames) {
+			if (storeName === MMOUTPUT) continue;
 			buttons.push(this.renderTabButton(storeName))
 		}
 		return <div id="tab-buttons">{buttons}</div>
@@ -207,13 +208,7 @@ export class App extends Component<Props, State> {
 			<div class="toolbar">
 				<div class="icon"></div>
 				{this.renderImporter()}
-				<button
-					class="tool"
-					onClick={() => {
-						this.setState({
-							showMergePanel: !this.state.showMergePanel
-						})
-					}}>Merge</button>
+				
 				<button
 					class="tool"
 					onClick={async () => {
@@ -229,12 +224,11 @@ export class App extends Component<Props, State> {
 				db={this.state.db}
 				storeName={this.state.storeName}>
 			</Query>
-			{/* <Query
-				key={this.state.storeName}
+			<Query
+				key={MMOUTPUT}
 				db={this.state.db}
-				storeName={this.state.storeName}>
-			</Query> */}
-			{this.renderMergePanel()}
+				storeName={MMOUTPUT}>
+			</Query>
 		</div>
 	}
 }
