@@ -39,11 +39,13 @@ body {
 	background-color: #dbdbdb;
 	overflow-y: hidden;
 	overflow-x: auto;
+	flex-shrink: 0;
 }
 .toolbar {
 	background-color: #858585;
 	overflow-x: auto;
 	text-align: left;
+	flex-shrink: 0;
 }
 .icon {
 	width: 2em;
@@ -107,6 +109,7 @@ table > tr > th {
 	background-color: #cecece;
 	padding-left: 0.5em;
 	padding-right: 0.5em;
+	min-width: 8em;
 }
 table > tr {
 	/* border: 1px solid #b5b5b5; */

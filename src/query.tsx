@@ -12,6 +12,7 @@ interface State {
   pageIndex: number;
   count: number;
   page?: Array<any>;
+  storeMax?: number;
 }
 
 export class Query extends Component<Props, State> {
@@ -87,13 +88,20 @@ export class Query extends Component<Props, State> {
     if (!this.state.storeName) return
     const db = this.state.db
     const page = await db.page(this.state.storeName, pageIndex, count)
+    const storeMax = await db.count(this.state.storeName)
+
     this.setState({
       page,
       pageIndex,
-      count
+      count,
+      storeMax,
     })
   }
   render() {
+    let maxPage = undefined
+    if (this.state.storeMax !== undefined) {
+      maxPage = Math.floor(this.state.storeMax / this.state.count)
+    }
     return <div class="query-container">
       <div class="row">
         <label>Page</label>
@@ -103,6 +111,7 @@ export class Query extends Component<Props, State> {
           step="1"
           min="0"
           value={this.state.pageIndex}
+          max={maxPage}
           onChange={(evt) => {
             const target: HTMLInputElement = evt.target as any;
             const pageIndex = Math.max(
@@ -112,11 +121,13 @@ export class Query extends Component<Props, State> {
             this.updateDataView(pageIndex, this.state.count)
           }}
         ></input>
+        <span style="margin-right:3em;">{`/ ${maxPage}`}</span>
         <label>Count</label>
         <input
           type="number"
           step="1"
           min="1"
+          max={this.state.storeMax}
           value={this.state.count}
           onChange={(evt) => {
             const target: HTMLInputElement = evt.target as any;
@@ -130,6 +141,7 @@ export class Query extends Component<Props, State> {
             this.updateDataView(this.state.pageIndex, count)
           }}
         ></input>
+        <span style="margin-right:3em;">{`/ ${this.state.storeMax}`}</span>
       </div>
       <div class="csv-container">
         <table class="query-output">

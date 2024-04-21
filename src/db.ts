@@ -90,6 +90,20 @@ export class DB {
       cb(cursor)
     })
   }
+  count (storeName: string) {
+    return new Promise<number>((resolve, reject)=>{
+      const req = this.getStore(storeName).count()
+      req.onsuccess = (evt)=>{
+        //@ts-ignore
+        resolve(evt.target.result as number)
+        return
+      }
+      req.onerror = (evt)=>{
+        reject(evt)
+        return
+      }
+    })
+  }
   /**Get a 'page' of rows from a store in the db
    * internally uses a cursor and advances (skips) rows to get to the page
    * returns as many rows as possible up to count
@@ -100,23 +114,25 @@ export class DB {
       let counter = 0
 
       const results = []
+      
+      const max = await this.count(storeName)
 
       this.cursor(storeName, (cursor)=>{
-        // if (!cursor) {
-        //   _resolve(results)
-        //   return
-        // }
+        
+        if (!cursor) {
+          _resolve(results)
+          return
+        }
         
         if (!skippedPages) {
           const skipCount = page * count
           skippedPages = true
           if (skipCount > 0) {
-            cursor.advance(page * count)
-            try {
-              cursor.continue()
-            } catch (ex) {
-              console.warn(ex)
+            if (skipCount > max) {
+              _resolve(results)
+              return
             }
+            cursor.advance(skipCount)
             return
           }
         }
@@ -128,6 +144,7 @@ export class DB {
           } catch (ex) {
             console.warn("2", ex)
             _resolve(results)
+            return
           }
         } else {
           _resolve(results)
