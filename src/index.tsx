@@ -125,6 +125,11 @@ export class App extends Component<Props, State> {
 			store.put(row, row[key])
 		}
 	}
+	async dbOutput () {
+		const db = this.state.db
+
+		await db.recreateStore(MMOUTPUT)
+	}
 	/**Update the index of the sheet's store
 	 * if sheet.keyColumnIndex === -1 it deletes the index
 	*/
@@ -155,11 +160,12 @@ export class App extends Component<Props, State> {
 	async ensureDB() {
 		if (!this.state.db) {
 			const db = await DB.open("mergemate")
-
+			console.log("DB version", db.db.version)
 			this.setState({
 				db
 			})
 			await this.ensureStoreName()
+			await this.dbOutput()
 		}
 	}
 	renderImporter() {
@@ -217,6 +223,15 @@ export class App extends Component<Props, State> {
 							storeName: undefined,
 						})
 					}}>Clear</button>
+				<button
+					class="tool"
+					onClick={async () => {
+						if (this.state.db) {
+							await this.state.db.delete()
+						}
+						
+						window.location.reload()
+					}}>Hard Reset</button>
 			</div>
 			{this.renderTabButtons()}
 			<Query
@@ -225,7 +240,7 @@ export class App extends Component<Props, State> {
 				storeName={this.state.storeName}>
 			</Query>
 			<Query
-				key={MMOUTPUT}
+				key={this.state.db?.db.version}
 				db={this.state.db}
 				storeName={MMOUTPUT}>
 			</Query>

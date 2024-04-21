@@ -76,7 +76,7 @@ export class Query extends Component<Props, State> {
   }
 
   async updateDataView(pageIndex: number, count: number) {
-    if (!this.state.storeName) return
+    if (!this.state.storeName ||!this.state.db.hasStore(this.state.storeName)) return
     const db = this.state.db
     let page = []
     try {

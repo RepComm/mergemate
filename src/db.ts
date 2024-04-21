@@ -64,10 +64,34 @@ export class DB {
       db.deleteObjectStore(name)
     })
   }
+  hasStore (name: string): boolean {
+    return this.db.objectStoreNames.contains(name)
+  }
+  /**delete if present + create*/
+  async recreateStore(name: string) {
+    if (this.hasStore(name)) {
+      await this.deleteStore(name)
+    }
+    await this.createStore(name)
+  }
   clear () {
     return this.bullshit((db)=>{
       for (const storeName of db.objectStoreNames) {
         db.deleteObjectStore(storeName)
+      }
+    })
+  }
+  delete () {
+    return new Promise((resolve, reject)=>{
+
+      const name = this.db.name
+      this.db.close()
+      const req = indexedDB.deleteDatabase(name)
+      req.onsuccess = (evt)=>{
+        resolve(evt)  
+      }
+      req.onerror = (evt)=>{
+        reject(evt)
       }
     })
   }
