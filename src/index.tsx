@@ -4,95 +4,16 @@ import { Component, VNode, createRef, render } from 'preact';
 import './style.css';
 import { Query } from './query';
 import { DB } from './db';
+import { SheetState, CSVRow, parseCSV } from './csv';
 
 interface Props {
 
 }
 interface State {
-	sheetIndex: number;
+	// sheetIndex: number;
 	showMergePanel: boolean;
 	db?: DB;
 	storeName?: string;
-}
-interface CSVRow {
-	[key: string]: string;
-}
-function parseCSV(csvStr: string, cb: (row: CSVRow) => void) {
-	const rowDelim = "\n"
-	const colDelim = ","
-	const quoteDelim = "\""
-	const headers = []
-	let header = ""
-	let headerEndIndex = 0
-
-	let isQuoting = false
-
-	for (let i = 0; i < csvStr.length; i++) {
-		const ch = csvStr[i]
-		if (ch === quoteDelim) {
-			isQuoting = !isQuoting
-			continue
-		} else if (ch === colDelim && !isQuoting) {
-			headers.push(header)
-			header = ""
-		} else if (ch === rowDelim) {
-			headers.push(header)
-			headerEndIndex = i + 1
-			break
-		} else {
-			header += ch
-		}
-	}
-	isQuoting = false
-
-	let cols = []
-	let col = ""
-	for (let i = headerEndIndex; i < csvStr.length; i++) {
-		const ch = csvStr[i]
-		if (ch === quoteDelim) {
-			isQuoting = !isQuoting
-			continue
-		} else if (ch === colDelim && !isQuoting) {
-			cols.push(col)
-			col = ""
-		} else if (ch === rowDelim) {
-			cols.push(col)
-
-			const result = {}
-			for (let j = 0; j < headers.length; j++) {
-				const h = headers[j]
-				const v = cols[j]
-				result[h] = v
-			}
-			cb(result)
-
-			cols = []
-			col = ""
-
-		} else {
-			col += ch
-			if (i === csvStr.length - 1) {
-				cols.push(col)
-				col = ""
-			}
-		}
-	}
-	if (cols.length > 0) {
-		const result = {}
-		for (let j = 0; j < headers.length; j++) {
-			const h = headers[j]
-			const v = cols[j]
-			result[h] = v
-		}
-		cb(result)
-	}
-
-}
-
-interface SheetState {
-	csvRows: Array<CSVRow>
-	name: string
-	keyColumnIndex: number
 }
 
 function fileReadAsString(file: File) {
@@ -135,12 +56,12 @@ function filesInputToStrings (inp: HTMLInputElement) {
 indexedDB.deleteDatabase("mergemate")
 
 export class App extends Component<Props, State> {
-	sheets: Array<SheetState>
+	// sheets: Array<SheetState>
 
 	constructor() {
 		super();
 		this.state = {
-			sheetIndex: 0,
+			// sheetIndex: 0,
 			showMergePanel: false,
 		}
 	}
@@ -165,18 +86,21 @@ export class App extends Component<Props, State> {
 			{cols}
 		</tr>
 	}
-	renderTabButton(name: string, tabIndex: number) {
+	renderTabButton(storeName: string) {
 		return <button onClick={() => {
-			this.setState({ sheetIndex: tabIndex })
-		}}>{name}</button>
+			this.setState({ storeName })
+		}}>{storeName}</button>
 	}
 	renderTabButtons() {
 		const buttons = []
-		if (this.sheets) {
-			for (let i = 0; i < this.sheets.length; i++) {
-				const csv = this.sheets[i]
-				buttons.push(this.renderTabButton(csv.name, i))
-			}
+		const db = this.state.db
+		if (!db) return buttons
+		const storeNames = db.db.objectStoreNames
+
+		if (storeNames.length < 0) return buttons
+
+		for (const storeName of storeNames) {
+			buttons.push(this.renderTabButton(storeName))
 		}
 		return <div id="tab-buttons">{buttons}</div>
 	}
@@ -276,9 +200,7 @@ export class App extends Component<Props, State> {
 						await this.dbSheetInsert(sheet)
 					}
 
-					// setTimeout(()=>{
-						this.ensureStoreName()
-					// }, 1000)
+					this.ensureStoreName()
 
 				}}></input>
 			<button
