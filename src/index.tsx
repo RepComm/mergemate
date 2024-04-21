@@ -14,6 +14,7 @@ interface State {
 	showMergePanel: boolean;
 	db?: DB;
 	storeName?: string;
+	updateOutput?: boolean;
 }
 
 function fileReadAsString(file: File) {
@@ -62,6 +63,7 @@ export class App extends Component<Props, State> {
 		this.state = {
 			// sheetIndex: 0,
 			showMergePanel: false,
+			updateOutput: true,
 		}
 	}
 	componentWillMount(): void {
@@ -127,8 +129,27 @@ export class App extends Component<Props, State> {
 	}
 	async dbOutput () {
 		const db = this.state.db
-
 		await db.recreateStore(MMOUTPUT)
+		console.log("output")
+		
+		const headerMap = {
+
+		}
+		
+		for (const storeName of db.db.objectStoreNames) {
+			if (storeName === MMOUTPUT) continue;
+			const headers = await db.getHeaders(storeName)
+			for (const header of headers) {
+				headerMap[header] = "1"
+			}
+		}
+		
+		const store = db.getStore(MMOUTPUT)
+		store.put(headerMap, "1")
+
+		this.setState({
+			updateOutput: !this.state.updateOutput,
+		})
 	}
 	/**Update the index of the sheet's store
 	 * if sheet.keyColumnIndex === -1 it deletes the index
@@ -199,8 +220,9 @@ export class App extends Component<Props, State> {
 						await this.dbSheetInsert(sheet)
 					}
 
-					this.ensureStoreName()
+					await this.ensureStoreName()
 
+					await this.dbOutput()
 				}}></input>
 			<button
 				class="tool"
@@ -210,6 +232,7 @@ export class App extends Component<Props, State> {
 		</div>
 	}
 	render() {
+		console.log(this.state.updateOutput)
 		return <div id="container">
 			<div class="toolbar">
 				<div class="icon"></div>
@@ -240,7 +263,7 @@ export class App extends Component<Props, State> {
 				storeName={this.state.storeName}>
 			</Query>
 			<Query
-				key={this.state.db?.db.version}
+				key={this.state.updateOutput}
 				db={this.state.db}
 				storeName={MMOUTPUT}>
 			</Query>

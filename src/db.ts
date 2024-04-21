@@ -190,4 +190,21 @@ export class DB {
 
     })
   }
+  getHeaders (storeName: string) {
+    return new Promise<Array<string>>((resolve, reject)=>{
+      this.cursor(storeName, (cursor)=>{
+        if (!cursor) {
+          reject("no cursor")
+          return
+        }
+        if (cursor.value === undefined) {
+          reject("no cursor value")
+          return
+        }
+        const keys = Object.keys(cursor.value)
+        resolve(keys)
+        return
+      })
+    })
+  }
 }
